@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An AWS Lambda application that calls the Lambda API.
+Resources:
+  function:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: build/distributions/positive-contacts-be.zip
+      Handler: it.cs.contact.tracing.be.Handler
+      Runtime: java8
+      Description: Java function
+      MemorySize: 512
+      Timeout: 15
+      # Function's execution role
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      Layers:
+        - !Ref libs
+  libs:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: positive-contacts-be-lib
+      Description: Dependencies for the Java S3 sample app.
+      ContentUri: build/positive-contacts-be-lib.zip
+      CompatibleRuntimes:
+        - java8
