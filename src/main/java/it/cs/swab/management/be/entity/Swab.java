@@ -1,15 +1,12 @@
 package it.cs.swab.management.be.entity;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.amazonaws.util.StringUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.cs.swab.management.be.utils.Util;
 import lombok.*;
 
-@DynamoDBTable(tableName = "positive-contacts")
+@DynamoDBTable(tableName = "reported-swabs")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,22 +18,31 @@ public class Swab {
 	@JsonProperty
 	private String fiscalCode;
 
-	@DynamoDBAttribute(attributeName = "made-on")
+	@DynamoDBAttribute(attributeName = "reported-on")
 	@JsonProperty
-	private int madeOn;
+	private int reportedOn;
 
-	@Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder("Swab{");
-		sb.append("fiscalCode='").append(fiscalCode).append('\'');
-		sb.append(", madeOn=").append(madeOn);
-		sb.append('}');
-		return sb.toString();
-	}
+	@DynamoDBAttribute(attributeName = "state")
+	@JsonProperty
+	@DynamoDBTyped(DynamoDBMapperFieldModel.DynamoDBAttributeType.S)
+	private SwabState state;
 
 	@DynamoDBIgnore
 	public boolean isValid() {
 
-		return !StringUtils.isNullOrEmpty(fiscalCode) && Util.isValidDate(madeOn);
+		return !StringUtils.isNullOrEmpty(fiscalCode) && Util.isValidDate(reportedOn) && state != null;
+	}
+
+	@DynamoDBIgnore
+	public Swab update(final Swab swab) {
+
+		this.state = swab.state;
+
+		return this;
+	}
+
+	public enum SwabState {
+
+		IN_QUEUE, WAITING_FOR_RESULT, POSITIVE, NEGATIVE
 	}
 }

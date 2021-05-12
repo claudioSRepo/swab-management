@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, LambdaResponse> {
 
@@ -45,18 +46,32 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, Lamb
 		switch (HttpMethod.valueOf(event.getHttpMethod())) {
 
 			case GET:
-				return handleGet(event);
+				return getSwab(event);
 
 			case POST:
-				return handlePost(event);
+				return insertInSwabQueue(event);
+
+			case PUT:
+				return updateSwab(event);
 
 			default:
 				return LambdaResponse.builder().statusCode(HttpStatus.SC_BAD_REQUEST).build();
 		}
 	}
 
+	private LambdaResponse getSwab(final APIGatewayProxyRequestEvent event) {
 
-	private LambdaResponse handlePost(final APIGatewayProxyRequestEvent event) {
+		logger.info("Requested GET with Path params : {} \n and Query Params: {}", event.getPathParameters(),
+				event.getQueryStringParameters());
+
+		final String cf = event.getPathParameters().getOrDefault("fiscalCode", "");
+
+		final List<Swab> positiveSwabs = swabRepository.getPositiveSwabsByCF(cf);
+
+		return LambdaResponse.builder().statusCode(HttpStatus.SC_OK).body(gson.toJson(positiveSwabs)).build();
+	}
+
+	private LambdaResponse insertInSwabQueue(final APIGatewayProxyRequestEvent event) {
 
 		final Swab body = gson.fromJson(event.getBody(), Swab.class);
 
@@ -66,15 +81,19 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, Lamb
 				HttpStatus.SC_BAD_REQUEST).build();
 	}
 
-	private LambdaResponse handleGet(final APIGatewayProxyRequestEvent event) {
+	private LambdaResponse updateSwab(final APIGatewayProxyRequestEvent event) {
 
-		logger.info("Requested GET with Path params : {} \n and Query Params: {}", event.getPathParameters(),
-				event.getQueryStringParameters());
+		final Swab body = gson.fromJson(event.getBody(), Swab.class);
 
-		final String cf = event.getPathParameters().getOrDefault("deviceKey", "");
+		final String cf = event.getPathParameters().getOrDefault("fiscalCode", "");
 
-		final List<Swab> positiveSwabs = swabRepository.getPositiveSwabsByCF(cf);
+		final Optional<Swab> swabUpdated = swabRepository.getPositiveSwabsByCF(
+				cf).stream().findFirst().map(found -> found.update(body));
 
-		return LambdaResponse.builder().statusCode(HttpStatus.SC_OK).body(gson.toJson(positiveSwabs)).build();
+		logger.info("Requested PUT with body : {}", body);
+
+		return LambdaResponse.builder().statusCode(swabRepository.create(swabUpdated.orElse(body)) ? HttpStatus.SC_CREATED :
+				HttpStatus.SC_BAD_REQUEST).build();
 	}
+
 }

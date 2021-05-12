@@ -51,11 +51,11 @@ public class SwabRepository {
 
 	public boolean create(final Swab swabEntity) {
 
-		logger.info("Create swab entity: {}", swabEntity.getFiscalCode());
-
 		try {
+			logger.info("Create swab entity: {}", swabEntity.getFiscalCode());
 
 			if (swabEntity.isValid()) {
+
 				dbMapper.save(swabEntity);
 				return true;
 			}
