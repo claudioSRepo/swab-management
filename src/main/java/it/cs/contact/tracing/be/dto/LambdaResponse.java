@@ -1,4 +1,4 @@
-package it.cs.swab.management.be.dto;
+package it.cs.contact.tracing.be.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

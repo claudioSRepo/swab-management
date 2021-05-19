@@ -1,4 +1,4 @@
-package it.cs.swab.management.be.utils;
+package it.cs.contact.tracing.be.utils;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.google.gson.Gson;

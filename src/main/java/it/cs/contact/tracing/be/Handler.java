@@ -1,4 +1,4 @@
-package it.cs.swab.management.be;
+package it.cs.contact.tracing.be;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -6,10 +6,10 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.cs.swab.management.be.dto.LambdaResponse;
-import it.cs.swab.management.be.entity.Swab;
-import it.cs.swab.management.be.repository.SwabRepository;
-import it.cs.swab.management.be.utils.Util;
+import it.cs.contact.tracing.be.dto.LambdaResponse;
+import it.cs.contact.tracing.be.entity.Swab;
+import it.cs.contact.tracing.be.repository.SwabRepository;
+import it.cs.contact.tracing.be.utils.Util;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

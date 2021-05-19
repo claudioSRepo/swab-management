@@ -1,10 +1,10 @@
-package it.cs.swab.management.be.repository;
+package it.cs.contact.tracing.be.repository;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import it.cs.swab.management.be.entity.Swab;
+import it.cs.contact.tracing.be.entity.Swab;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

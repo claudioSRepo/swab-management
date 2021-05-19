@@ -1,9 +1,9 @@
-package it.cs.swab.management.be.entity;
+package it.cs.contact.tracing.be.entity;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.amazonaws.util.StringUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.cs.swab.management.be.utils.Util;
+import it.cs.contact.tracing.be.utils.Util;
 import lombok.*;
 
 @DynamoDBTable(tableName = "reported-swabs")
