@@ -14,8 +14,7 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Optional;
+import static it.cs.contact.tracing.be.utils.Util.getFirst;
 
 public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, LambdaResponse> {
 
@@ -49,7 +48,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, Lamb
 				return getSwab(event);
 
 			case POST:
-				return insertInSwabQueue(event);
+				return insert(event);
 
 			case PUT:
 				return updateSwab(event);
@@ -66,12 +65,13 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, Lamb
 
 		final String cf = event.getPathParameters().getOrDefault("fiscalCode", "");
 
-		final List<Swab> positiveSwabs = swabRepository.getPositiveSwabsByCF(cf);
+		final Swab positiveSwab =
+				getFirst(swabRepository.getPositiveSwabsByCF(cf)).orElse(new Swab());
 
-		return LambdaResponse.builder().statusCode(HttpStatus.SC_OK).body(gson.toJson(positiveSwabs)).build();
+		return LambdaResponse.builder().statusCode(HttpStatus.SC_OK).body(gson.toJson(positiveSwab)).build();
 	}
 
-	private LambdaResponse insertInSwabQueue(final APIGatewayProxyRequestEvent event) {
+	private LambdaResponse insert(final APIGatewayProxyRequestEvent event) {
 
 		final Swab body = gson.fromJson(event.getBody(), Swab.class);
 
@@ -84,16 +84,14 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, Lamb
 	private LambdaResponse updateSwab(final APIGatewayProxyRequestEvent event) {
 
 		final Swab body = gson.fromJson(event.getBody(), Swab.class);
+		logger.info("Requested PUT with body : {}", body);
 
 		final String cf = event.getPathParameters().getOrDefault("fiscalCode", "");
 
-		final Optional<Swab> swabUpdated = swabRepository.getPositiveSwabsByCF(
-				cf).stream().findFirst().map(found -> found.update(body));
+		final Swab swab = swabRepository.getPositiveSwabsByCF(
+				cf).stream().findFirst().map(found -> found.update(body)).orElse(body);
 
-		logger.info("Requested PUT with body : {}", body);
-
-		return LambdaResponse.builder().statusCode(swabRepository.create(swabUpdated.orElse(body)) ? HttpStatus.SC_CREATED :
+		return LambdaResponse.builder().statusCode(swabRepository.create(swab) ? HttpStatus.SC_CREATED :
 				HttpStatus.SC_BAD_REQUEST).build();
 	}
-
 }

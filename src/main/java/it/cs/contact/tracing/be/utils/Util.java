@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -89,6 +91,14 @@ public class Util {
 			logger.error("Error formatting date: {}", date);
 			return false;
 		}
+	}
 
+	public static <T> Optional<T> getFirst(final List<T> list) {
+
+		if (list != null && !list.isEmpty() && list.get(0) != null) {
+			return Optional.of(list.get(0));
+		}
+
+		return Optional.empty();
 	}
 }
